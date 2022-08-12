@@ -20,4 +20,9 @@ dd MBOOT_HEADER_FLAGS   ; GRUB 的一些加载时选项，其详细注释在定�
 dd MBOOT_CHECKSUM       ; 检测数值，其含义在定义处s
 
 start:
+    mov esp,sk-1
     call entry
+
+section .data
+    times 1024*4 db 0
+    sk:
