@@ -21,6 +21,7 @@ dd MBOOT_CHECKSUM       ; 检测数值，其含义在定义处s
 
 start:
     mov esp,sk-1
+    mov ebp,0
     push ebx
     call entry
 
