@@ -25,6 +25,6 @@ start:
     push ebx
     call entry
 
-section .data
+section .text
     times 1024*4 db 0
     sk:
