@@ -40,4 +40,5 @@ typedef struct elf_t
 } elf_t;
 
 void init_sym(struct multiboot_t *m);
+char *lookup_sym(uint32_t addr);
 #endif
