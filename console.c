@@ -226,6 +226,67 @@ void console_write_dec(uint32_t n, real_color_t back, real_color_t fore)
 
 	console_write_color(c2, back, fore);
 }
+
+void console_write64_dec(uint64_t n, real_color_t back, real_color_t fore)
+{
+	if (n == 0)
+	{
+		console_putc_color('0', back, fore);
+		return;
+	}
+
+	uint64_t acc = n;
+	char c[64];
+	int i = 0;
+	while (acc > 0)
+	{
+		int ys = do_div(acc, 10);
+		c[i] = '0' + ys;
+		i++;
+	}
+	c[i] = 0;
+
+	char c2[64];
+	c2[i--] = 0;
+
+	int j = 0;
+	while (i >= 0)
+	{
+		c2[i--] = c[j++];
+	}
+	console_write_color(c2, back, fore);
+}
+void console_write64_hex(uint64_t n, real_color_t back, real_color_t fore)
+{
+	int tmp;
+	char noZeroes = 1;
+
+	console_write_color("0x", back, fore);
+	if (n == 0)
+	{
+		console_write_color("0", back, fore);
+		return;
+	}
+
+	int i;
+	for (i = 60; i >= 0; i -= 4)
+	{
+		tmp = (n >> i) & 0xF;
+		if (tmp == 0 && noZeroes != 0)
+		{
+			continue;
+		}
+		noZeroes = 0;
+		if (tmp >= 0xA)
+		{
+			console_putc_color(tmp - 0xA + 'a', back, fore);
+		}
+		else
+		{
+			console_putc_color(tmp + '0', back, fore);
+		}
+	}
+}
 void console_printf(char *format, ...)
 {
 	char *arg = ((char *)((&format)));
@@ -250,9 +311,17 @@ void console_printf(char *format, ...)
 				console_write_dec(*((int *)arg), rc_black, rc_white);
 				arg += 4;
 				break;
+			case 'D':
+				console_write64_dec(*((long long *)arg), rc_black, rc_white);
+				arg += 8;
+				break;
 			case 'x':
 				console_write_hex(*((int *)arg), rc_black, rc_white);
 				arg += 4;
+				break;
+			case 'X':
+				console_write64_hex(*((long long *)arg), rc_black, rc_white);
+				arg += 8;
 				break;
 			default:
 				console_putc_color('%', rc_black, rc_white);

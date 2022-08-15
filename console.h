@@ -59,5 +59,9 @@ void console_write_hex(uint32_t n, real_color_t back, real_color_t fore);
 // 屏幕输出一个十进制的整型数
 void console_write_dec(uint32_t n, real_color_t back, real_color_t fore);
 
+void console_write64_hex(uint64_t n, real_color_t back, real_color_t fore);
+
+void console_write64_dec(uint64_t n, real_color_t back, real_color_t fore);
+
 void console_printf(char *format, ...);
 #endif // INCLUDE_CONSOLE_H_
