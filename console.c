@@ -27,14 +27,14 @@
  */
 
 // VGA 的显示缓冲的起点是 0xB8000
-static uint16_t *video_memory = (uint16_t *)0xB8000;
+uint16_t *video_memory = (uint16_t *)0xB8000;
 
 // 屏幕"光标"的坐标
-static uint8_t cursor_x = 0;
-static uint8_t cursor_y = 0;
+uint8_t cursor_x = 0;
+uint8_t cursor_y = 0;
 
 // 移动光标
-static void move_cursor()
+void move_cursor()
 {
 	// 屏幕是 80 字节宽
 	uint16_t cursorLocation = cursor_y * 80 + cursor_x;
@@ -51,8 +51,9 @@ static void move_cursor()
 }
 
 // 屏幕滚动操作
-static void scroll()
+void scroll()
 {
+
 	// attribute_byte 被构造出一个黑底白字的描述格式
 	uint8_t attribute_byte = (0 << 4) | (15 & 0x0F);
 	uint16_t blank = 0x20 | (attribute_byte << 8); // space 是 0x20

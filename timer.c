@@ -1,24 +1,48 @@
 #include "timer.h"
-void init_timer(uint32_t frequency)
+#define IRQ0_FREQUENCY 100
+#define INPUT_FREQUENCY 1193180
+#define COUNTER0_VALUE INPUT_FREQUENCY / IRQ0_FREQUENCY
+#define CONTRER0_PORT 0x40
+#define COUNTER0_NO 0
+#define COUNTER_MODE 3
+#define READ_WRITE_LATCH 3
+#define PIT_CONTROL_PORT 0x43
+/* 把操作的计数器counter_no、读写锁属性rwl、计数器模式counter_mode写入模式控制寄存器并赋予初始值counter_value */
+static void frequency_set(uint8_t counter_port,
+						  uint8_t counter_no,
+						  uint8_t rwl,
+						  uint8_t counter_mode,
+						  uint16_t counter_value)
 {
-	// 注册时间相关的处理函数
-	// register_interrupt_handler(IRQ0, timer_callback);
-
-	// Intel 8253/8254 PIT芯片 I/O端口地址范围是40h~43h
-	// 输入频率为 1193180，frequency 即每秒中断次数
-	uint32_t divisor = 1193180 / frequency;
-
-	// D7 D6 D5 D4 D3 D2 D1 D0
-	// 0  0  1  1  0  1  1  0
-	// 即就是 36 H
-	// 设置 8253/8254 芯片工作在模式 3 下
-	outb(0x43, 0x36);
-
-	// 拆分低字节和高字节
-	uint8_t low = (uint8_t)(divisor & 0xFF);
-	uint8_t hign = (uint8_t)((divisor >> 8) & 0xFF);
-
-	// 分别写入低字节和高字节
-	outb(0x40, low);
-	outb(0x40, hign);
+	/* 往控制字寄存器端口0x43中写入控制字 */
+	outb(PIT_CONTROL_PORT, (uint8_t)(counter_no << 6 | rwl << 4 | counter_mode << 1));
+	/* 先写入counter_value的低8位 */
+	outb(counter_port, (uint8_t)counter_value);
+	/* 再写入counter_value的高8位 */
+	outb(counter_port, (uint8_t)counter_value >> 8);
+}
+void init_timer()
+{
+	frequency_set(CONTRER0_PORT, COUNTER0_NO, READ_WRITE_LATCH, COUNTER_MODE, COUNTER0_VALUE);
+}
+int bcd2bin(int bcd)
+{
+	return ((bcd >> 4) * 10 + (bcd & 0x0f));
+}
+int get_curtime()
+{
+	outb(0x70, 0x00);
+	int sec = bcd2bin(inb(0x71));
+	outb(0x70, 0x02);
+	int min = bcd2bin(inb(0x71));
+	outb(0x70, 0x04);
+	int hour = bcd2bin(inb(0x71));
+	outb(0x70, 0x07);
+	int day = bcd2bin(inb(0x71));
+	outb(0x70, 0x08);
+	int month = bcd2bin(inb(0x71));
+	outb(0x70, 0x09);
+	int year = bcd2bin(inb(0x71)) + 30 + 1970;
+	int timestamp = hour * 3600 + min * 60 + sec + day * 86400 + month * 2592000 + (year - 1970) * 31536000;
+	return timestamp;
 }

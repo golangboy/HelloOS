@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "console.h"
+#include "elf.h"
 extern int idt_table;
 typedef struct interupt_gate
 {
@@ -18,11 +19,11 @@ typedef struct interupt_descriptor
 struct interupt_descriptor idt_desc;
 void load_idt()
 {
-    //console_printf("Loading IDT\n");
+    // console_printf("Loading IDT\n");
     for (int i = 0; i <= (IDT_NUM - 1); i++)
     {
         int base = *((&idt_table) + i);
-        //console_printf("IDT Vector:%d - Handler:%x\n", i, base);
+        // console_printf("IDT Vector:%d - Handler:%x\n", i, base);
         idt_desc.idt[i].offset_low = base & 0xFFFF;
         idt_desc.idt[i].offset_high = (base >> 16) & 0xFFFF;
         idt_desc.idt[i].selector = 0x10;
@@ -38,7 +39,7 @@ void load_idt()
 void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int vecNum, int errCode, int eip, int cs, int eflags)
 {
     // esp+0x30 is the stack pointer
-    console_printf("IDT Vector:%d - Handler:%x\n", vecNum, eip);
+    // console_printf("IDT Vector:%d - EIP:%x - Name:%s \n", vecNum, eip, lookup_sym(eip));
     // console_printf("Error Code:%x\n", errCode);
     // console_printf("EIP:%x\n", eip);
     // console_printf("CS:%x\n", cs);
@@ -46,9 +47,12 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
     // console_printf("EAX:%x EBX:%x ECX:%x EDX:%x\n EDI:%x ESI:%x ESP:%x EBP:%x\n", eax, ebx, ecx, edx, edi, esi, esp, ebp);
     if (vecNum == 32)
     {
-        //console_printf("vec=32\n");
-        //schdule(esp + 0x30, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, eflags);
-        //console_printf("Timer!!!\n");
+        int tmp = eflags;
+        if (eflags & 0x200)
+        {
+            tmp = eflags ^ 0x200;
+        }
+        schdule(esp + 0x30, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, tmp);
+        // console_printf("Nerver reach here\n");
     }
-    pic_eoi();
 }

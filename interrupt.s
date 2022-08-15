@@ -8,7 +8,6 @@ section .text
 global idt_%1_entry
 idt_%1_entry:
 cli
-
 %if %2==0
 push 0
 %endif
@@ -23,6 +22,9 @@ push esi
 push edi
 push ebp
 push esp
+mov al,0x20
+out 0x20,al
+out 0xa0,al
 call idt_handler
 pop esp
 pop ebp
@@ -34,7 +36,7 @@ pop ebx
 pop eax
 add esp,4*2
 
-sti
+
 iret
 section .data
 dd idt_%1_entry
@@ -74,3 +76,18 @@ idt 31,0
 idt 32,0
 idt 33,0
 idt 34,0
+idt 35,0
+idt 36,0
+idt 37,0
+idt 38,0
+idt 39,0
+idt 40,0
+idt 41,0
+idt 42,0
+idt 43,0
+idt 44,0
+idt 45,0
+idt 46,0
+idt 47,0
+idt 48,0
+idt 49,0
