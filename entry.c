@@ -3,6 +3,7 @@
 #include "idt.h"
 #include "timer.h"
 #include "elf.h"
+#include "mm.h"
 extern uint8_t kern_start[];
 extern uint8_t kern_end[];
 void taskA()
@@ -33,6 +34,7 @@ int entry(struct multiboot_t *m)
 {
     console_printf("HelloOS!\n");
     console_printf("Kernel_start: %x Kernel_end: %x size:%x KB\n", kern_start, kern_end, (kern_end - kern_start) / 1024);
+    print_memory_map(m);
     load_idt();
     init_8259();
     init_timer();
