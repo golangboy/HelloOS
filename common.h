@@ -1,8 +1,6 @@
 #ifndef COMMOM_H
 #define COMMOM_H
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
-typedef unsigned int uint32_t;
+#include "types.h"
 // 端口写一个字节
 void outb(uint16_t port, uint8_t value);
 
