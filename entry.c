@@ -4,6 +4,7 @@
 #include "timer.h"
 #include "elf.h"
 #include "mm.h"
+#include "debug.h"
 void taskA()
 {
     while (1)
@@ -38,9 +39,11 @@ int entry(struct multiboot_t *m)
     init_8259();
     init_timer();
     init_sym(m);
-    start_task(taskA, 0x200000);
-    start_task(taskB, 0x200000 + 0x1000);
-    start_task(taskC, 0x200000 + 0x2000);
+    mg_info();
+    // start_task(taskA, 0x200000);
+    // start_task(taskB, 0x200000 + 0x1000);
+    // start_task(taskC, 0x200000 + 0x2000);
+    console_printf("Initial Finish!\n");
     while (1)
     {
         asm volatile("hlt");
