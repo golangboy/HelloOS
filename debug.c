@@ -25,3 +25,25 @@ void panic(char *str)
     while (1)
         ;
 }
+void panic_spin(char *filename,
+                int line,
+                const char *func,
+                const char *condition)
+{
+    asm volatile("cli");
+    console_printf("\n\n\n!!!!! error !!!!!\n");
+    console_printf("filename:");
+    console_printf(filename);
+    console_printf("\n");
+    console_printf("line:0x");
+    console_printf(line);
+    console_printf("\n");
+    console_printf("function:");
+    console_printf((char *)func);
+    console_printf("\n");
+    console_printf("condition:");
+    console_printf((char *)condition);
+    console_printf("\n");
+    while (1)
+        ;
+}
