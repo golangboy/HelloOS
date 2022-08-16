@@ -4,8 +4,6 @@
 #include "timer.h"
 #include "elf.h"
 #include "mm.h"
-extern uint8_t kern_start[];
-extern uint8_t kern_end[];
 void taskA()
 {
     while (1)
@@ -21,6 +19,7 @@ void taskB()
         console_printf("B");
         sleep(5);
     }
+    panic("Alloc fail");
 }
 void taskC()
 {
@@ -33,8 +32,8 @@ void taskC()
 int entry(struct multiboot_t *m)
 {
     console_printf("HelloOS!\n");
-    console_printf("Kernel_start: %x Kernel_end: %x size:%x KB\n", kern_start, kern_end, (kern_end - kern_start) / 1024);
     print_memory_map(m);
+    init_vm();
     load_idt();
     init_8259();
     init_timer();
