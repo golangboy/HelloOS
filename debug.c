@@ -35,8 +35,7 @@ void panic_spin(char *filename,
     console_printf("filename:");
     console_printf(filename);
     console_printf("\n");
-    console_printf("line:0x");
-    console_printf(line);
+    console_printf("line:%x", line);
     console_printf("\n");
     console_printf("function:");
     console_printf((char *)func);
