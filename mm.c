@@ -35,24 +35,24 @@ void print_memory_map(struct multiboot_t *m)
     mmap_entry_t *mmap = (mmap_entry_t *)mmap_addr;
     for (mmap = (mmap_entry_t *)mmap_addr; (uint32_t)mmap < mmap_addr + mmap_length; mmap++)
     {
-        long long start = ((long long)mmap->base_addr_high << 32) | mmap->base_addr_low;
-        long long size = ((long long)mmap->length_high << 32) | mmap->length_low;
+        uint64_t start = ((long long)mmap->base_addr_high << 32) | mmap->base_addr_low;
+        uint64_t size = ((long long)mmap->length_high << 32) | mmap->length_low;
         if (start >= 0x100000 && mmap->type == 1)
         {
             if (start == 0x100000)
             {
-                int kenerl_size = ((int)kern_end - (int)kern_start);
-                add_memmg(start + kenerl_size, (int)((int)size - kenerl_size));
+                uint64_t kenerl_size = ((int)kern_end - (int)kern_start);
+                add_memmg(start + kenerl_size, (uint64_t)(size - kenerl_size));
             }
             else
             {
-                add_memmg(start, (int)size);
+                add_memmg(start, size);
             }
         }
         console_printf("base_addr = %X, length = %X type:%d \n", start, size, mmap->type);
     }
 }
-void add_memmg(int addr, int size)
+void add_memmg(uint64_t addr, uint64_t size)
 {
     // console_printf("Add memory: %x %x\n", addr, size);
     mem_mg.freemem[mg_bkcnt].start_addr = addr;
@@ -135,8 +135,8 @@ void merge()
 }
 int free(void *ptr)
 {
-    int addr = (int)ptr;
-    int size = 0;
+    uint64_t addr = (uint64_t)ptr;
+    uint64_t size = 0;
     if (0 == addr)
     {
         return 0;
@@ -172,7 +172,7 @@ int free(void *ptr)
     return 0;
 }
 
-void *alloc(int size)
+void *alloc(uint64_t size)
 {
     merge();
     if (0 == size)
@@ -200,7 +200,7 @@ void *alloc(int size)
     }
     return 0;
 }
-void *alloc_4k(int size)
+void *alloc_4k(uint64_t size)
 {
     merge();
     if (0 == size)
@@ -208,12 +208,12 @@ void *alloc_4k(int size)
         return 0;
     }
     int idx = -1;
-    int alloc_addr = 0;
+    uint64_t alloc_addr = 0;
     for (int i = 0; i < MAX_MEMBK_CNT; i++)
     {
         if (mem_mg.freemem[i].size >= size)
         {
-            for (int k = mem_mg.freemem[i].start_addr & 0xfffff000;
+            for (uint64_t k = mem_mg.freemem[i].start_addr & 0xfffff000;
                  (k) < (mem_mg.freemem[i].start_addr + mem_mg.freemem[i].size); k += 4096)
             {
                 if ((k >= mem_mg.freemem[i].start_addr) &&
@@ -234,8 +234,8 @@ void *alloc_4k(int size)
     {
         return 0;
     }
-    int free_size = alloc_addr - mem_mg.freemem[idx].start_addr;
-    int old_start_addr = mem_mg.freemem[idx].start_addr;
+    uint64_t free_size = alloc_addr - mem_mg.freemem[idx].start_addr;
+    uint64_t old_start_addr = mem_mg.freemem[idx].start_addr;
     mem_mg.freemem[idx].start_addr += (size + free_size);
     mem_mg.freemem[idx].size -= (size + free_size);
     if (free_size)
@@ -262,9 +262,9 @@ void *alloc_4k(int size)
     }
     return (void *)alloc_addr;
 }
-int get_freemem()
+uint64_t get_freemem()
 {
-    int size = 0;
+    uint64_t size = 0;
     for (int i = 0; i < MAX_MEMBK_CNT; i++)
     {
         size += mem_mg.freemem[i].size;
@@ -272,9 +272,9 @@ int get_freemem()
     return size;
 }
 
-int get_allocmem()
+uint64_t get_allocmem()
 {
-    int size = 0;
+    uint64_t size = 0;
     for (int i = 0; i < MAX_MEMBK_CNT; i++)
     {
         size += mem_mg.allocmem[i].size;
@@ -285,7 +285,7 @@ int get_allocmem()
 void mg_info()
 {
     console_write_color("Memory Manage:\n", rc_black, rc_red);
-    console_printf("Allocated memory: %d KB\n", get_allocmem() / 1024);
+    console_printf("Allocated memory: %D KB\n", (uint64_t)(get_allocmem() / 1024));
     // for (int i = 0; i < MAX_MEMBK_CNT; i++)
     // {
     //     if (mem_mg.allocmem[i].start_addr != 0)
@@ -293,7 +293,7 @@ void mg_info()
     //         console_printf("  [ %d ]- Start:%x Size:%x\n", i, mem_mg.allocmem[i].start_addr, mem_mg.allocmem[i].size);
     //     }
     // }
-    console_printf("Free memory: %d KB\n", get_freemem() / 1024);
+    console_printf("Free memory: %D KB\n", (uint64_t)(get_freemem() / 1024));
     // for (int i = 0; i < MAX_MEMBK_CNT; i++)
     // {
     //     if (mem_mg.freemem[i].start_addr != 0)

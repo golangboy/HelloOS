@@ -24,20 +24,20 @@ struct PTE
 };
 struct Mem_Free_Info
 {
-    int start_addr;
-    int size;
+    uint64_t start_addr;
+    uint64_t size;
 };
 struct Mem_Mg
 {
     struct Mem_Free_Info freemem[MAX_MEMBK_CNT], allocmem[MAX_MEMBK_CNT];
 };
 void print_memory_map(struct multiboot_t *m);
-void add_memmg(int addr, int size);
-void *alloc(int size);
-void *alloc_4k(int size);
+void add_memmg(uint64_t addr, uint64_t size);
+void *alloc(uint64_t size);
+void *alloc_4k(uint64_t size);
 int free(void *ptr);
 void merge();
-int get_freemem();
-int get_allocmem();
+uint64_t get_freemem();
+uint64_t get_allocmem();
 void mg_info();
 #endif
