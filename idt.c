@@ -38,6 +38,10 @@ void load_idt()
 }
 void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int vecNum, int errCode, int eip, int cs, int eflags)
 {
+    if(39 == vecNum)
+    {
+        return;
+    }
     // esp+0x30 is the stack pointer
     // console_printf("IDT Vector:%d - EIP:%x - Name:%s \n", vecNum, eip, lookup_sym(eip));
     // console_printf("Error Code:%x\n", errCode);
