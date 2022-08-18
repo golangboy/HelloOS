@@ -11,10 +11,12 @@ reload_gdt:
 
 section .data
 gdt_ptr:
-    dw 4*8-1
+    dw 6*8-1
     dd gdt_table
 gdt_table:
     dq 0
     dq 0
     dq 0xCF9A000000FFFF
     dq 0xCF92000000FFFF
+    dq 0xCFFA000000FFFF
+    dq 0xCFF2000000FFFF
