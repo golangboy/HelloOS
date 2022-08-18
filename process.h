@@ -1,7 +1,7 @@
 #ifndef USER_H
 #define USER_H
 #define __MAX_PCB_NUM 20
-#define __MAX_TASK_NUM 20
+#define __MAX_PCBTASK_NUM 20
 #include "types.h"
 struct PCB
 {
@@ -9,7 +9,7 @@ struct PCB
     int valid;
     uint32_t cr3;
     uint32_t pid;
-    uint32_t tasks[__MAX_TASK_NUM];
+    uint32_t tasks[__MAX_PCBTASK_NUM];
 };
 struct PCB pcb_list[__MAX_PCB_NUM];
 
