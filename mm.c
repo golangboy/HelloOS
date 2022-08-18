@@ -69,6 +69,7 @@ void init_vm()
     {
         pde_entry[i].present = 0;
     }
+    pde_entry[0].user = 1;
     pde_entry[0].present = 1;
     pde_entry[0].frame = ((int)alloc_4k(1024 * 4)) >> 12;
     for (int i = 0, b = 0; i < 1024; i++)
@@ -76,6 +77,7 @@ void init_vm()
         struct PTE *pte_entry = (pde_entry[0].frame) << 12;
         pte_entry[i].present = 1;
         pte_entry[i].frame = b >> 12;
+        pte_entry[i].user = 1;
         b += 4096;
     }
     for (int i = 0x300, b = 0; i < 1024; i++)
@@ -86,10 +88,12 @@ void init_vm()
         {
             pte_entry[j].present = 1;
             pte_entry[j].frame = b >> 12;
+            pte_entry[j].user = 1;
             b += 4096;
         }
         pde_entry[i].frame = ((int)pte_entry) >> 12;
         pde_entry[i].present = 1;
+        pde_entry[i].user = 1;
     }
     asm volatile("mov %0, %%cr3" ::"r"(pde_entry));
     uint32_t cr0;
