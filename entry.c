@@ -12,6 +12,7 @@ void taskA()
         console_printf("A");
         sleep(1);
     }
+    exit_task();
 }
 void taskB()
 {
@@ -21,6 +22,7 @@ void taskB()
         sleep(5);
     }
     panic("Alloc fail");
+    exit_task();
 }
 void taskC()
 {
@@ -29,6 +31,7 @@ void taskC()
         console_printf("C");
         sleep(1);
     }
+    exit_task();
 }
 int entry(struct multiboot_t *m)
 {
