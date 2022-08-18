@@ -55,6 +55,7 @@ void print_memory_map(struct multiboot_t *m)
 void add_memmg(uint64_t addr, uint64_t size)
 {
     // console_printf("Add memory: %x %x\n", addr, size);
+    MEM_MG.freemem[mg_bkcnt].pid = 0;
     MEM_MG.freemem[mg_bkcnt].start_addr = addr;
     MEM_MG.freemem[mg_bkcnt++].size = size;
 }

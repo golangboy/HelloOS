@@ -24,6 +24,7 @@ struct PTE
 };
 struct MEM_BLOCK
 {
+    uint32_t pid;
     uint64_t start_addr;
     uint64_t size;
 };

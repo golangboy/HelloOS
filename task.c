@@ -2,6 +2,8 @@
 #include "timer.h"
 #include "console.h"
 #include "types.h"
+#include "process.h"
+#include "mm.h"
 struct Task task_list[__MAX_TASK_NUM];
 int curtask_idx = -1;
 int first_task = 1;
@@ -49,6 +51,8 @@ void exit_task()
 
 void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int eip, int cs, int eflags)
 {
+    uint32_t cur_tid = curtask_idx;
+    uint32_t cur_pid = getpidbytid(cur_tid);
     if (first_task == 1)
     {
         curtask_idx = 0;
@@ -86,6 +90,21 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
                 break;
             }
         }
+    }
+    uint32_t next_tid = curtask_idx;
+    uint32_t next_pid = getpidbytid(next_tid);
+    // if (0 != cur_tid && 0 != next_tid)
+    // console_printf("task %d(%d) switch to task %d(%d)\n", cur_tid, cur_pid, next_tid, next_pid);
+    if (0 == next_pid)
+    {
+        uint32_t cr3 = (uint32_t)kernel_pde_entry;
+        asm volatile("mov %0, %%cr3" ::"r"(cr3));
+    }
+    else
+    {
+        struct PCB *pcb = getpcbbypid(next_pid);
+        uint32_t cr3 = (uint32_t)pcb->cr3;
+        asm volatile("mov %0, %%cr3" ::"r"(cr3));
     }
     switch_task(task_list[curtask_idx].esp, task_list[curtask_idx].eip, task_list[curtask_idx].eax, task_list[curtask_idx].ebx, task_list[curtask_idx].ecx, task_list[curtask_idx].edx, task_list[curtask_idx].esi, task_list[curtask_idx].edi, task_list[curtask_idx].ebp, task_list[curtask_idx].eflags);
 }
