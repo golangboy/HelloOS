@@ -1,14 +1,14 @@
 #include "task.h"
 #include "timer.h"
 #include "console.h"
-struct Task task_list[MAX_TASK_NUM];
+struct Task task_list[__MAX_TASK_NUM];
 int curtask_idx = -1;
 int first_task = 1;
 void task_finish(int task_idx);
 void start_task(int func, int stack)
 {
     asm volatile("cli");
-    for (int i = 1; i < MAX_TASK_NUM; i++)
+    for (int i = 1; i < __MAX_TASK_NUM; i++)
     {
         if (task_list[i].valid == 0)
         {
@@ -29,7 +29,7 @@ void start_task(int func, int stack)
 }
 void init_task()
 {
-    for (int i = 0; i < MAX_TASK_NUM; i++)
+    for (int i = 0; i < __MAX_TASK_NUM; i++)
     {
         task_list[i].valid = 0;
         task_list[i].time_ticket = 0;
@@ -63,7 +63,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     task_list[curtask_idx].eip = eip;
     task_list[curtask_idx].eflags = eflags;
     int cur_time = get_curtime();
-    for (int i = 0; i < MAX_TASK_NUM; i++)
+    for (int i = 0; i < __MAX_TASK_NUM; i++)
     {
         if (task_list[i].valid == 1 && task_list[i].time_ticket <= cur_time)
         {
@@ -72,9 +72,9 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     }
     //寻找下一个可运行的任务
     int old_idx = curtask_idx;
-    for (int i = 0, k = 1; i < MAX_TASK_NUM; i++, k++)
+    for (int i = 0, k = 1; i < __MAX_TASK_NUM; i++, k++)
     {
-        int next_task_idx = (k + curtask_idx) % MAX_TASK_NUM;
+        int next_task_idx = (k + curtask_idx) % __MAX_TASK_NUM;
         if (task_list[next_task_idx].valid == 1)
         {
             if (task_list[next_task_idx].time_ticket == 0)

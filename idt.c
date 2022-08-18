@@ -14,13 +14,13 @@ typedef struct interupt_descriptor
 {
     uint16_t limit;
     uint32_t base;
-    struct interupt_gate idt[IDT_NUM];
+    struct interupt_gate idt[__IDT_NUM];
 } __attribute__((packed));
 struct interupt_descriptor idt_desc;
 void load_idt()
 {
     // console_printf("Loading IDT\n");
-    for (int i = 0; i <= (IDT_NUM - 1); i++)
+    for (int i = 0; i <= (__IDT_NUM - 1); i++)
     {
         int base = *((&idt_table) + i);
         // console_printf("IDT Vector:%d - Handler:%x\n", i, base);
@@ -31,7 +31,7 @@ void load_idt()
         idt_desc.idt[i].flags = 0x8E;
     }
     idt_desc.base = (uint32_t) & (idt_desc.idt);
-    idt_desc.limit = (sizeof(struct interupt_gate) * IDT_NUM) - 1;
+    idt_desc.limit = (sizeof(struct interupt_gate) * __IDT_NUM) - 1;
     asm volatile("lidt %0"
                  :
                  : "m"(idt_desc));

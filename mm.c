@@ -3,7 +3,7 @@
 #include "multiboot.h"
 #include "debug.h"
 int mg_bkcnt = 0;
-struct Mem_Mg mem_mg;
+struct MEM_MG MEM_MG;
 extern uint8_t kern_start[];
 extern uint8_t kern_end[];
 extern void reload_gdt();
@@ -55,12 +55,13 @@ void print_memory_map(struct multiboot_t *m)
 void add_memmg(uint64_t addr, uint64_t size)
 {
     // console_printf("Add memory: %x %x\n", addr, size);
-    mem_mg.freemem[mg_bkcnt].start_addr = addr;
-    mem_mg.freemem[mg_bkcnt++].size = size;
+    MEM_MG.freemem[mg_bkcnt].start_addr = addr;
+    MEM_MG.freemem[mg_bkcnt++].size = size;
 }
 void init_vm()
 {
     struct PDE *pde_entry = (struct PDE *)alloc_4k(1024 * 4);
+    kernel_pde_entry = pde_entry;
     ASSERT(pde_entry != 0);
     ASSERT(((int)pde_entry & (0x1000 - 1)) == 0);
     for (int i = 0; i < 1024; i++)
@@ -100,35 +101,35 @@ void init_vm()
 void merge()
 {
     // sort by size
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        for (int j = 0; j < MAX_MEMBK_CNT - 1; j++)
+        for (int j = 0; j < __MAX_MEMBK_CNT - 1; j++)
         {
-            if (mem_mg.freemem[j].start_addr > mem_mg.freemem[j + 1].start_addr)
+            if (MEM_MG.freemem[j].start_addr > MEM_MG.freemem[j + 1].start_addr)
             {
-                struct Mem_Free_Info temp = mem_mg.freemem[j];
-                mem_mg.freemem[j] = mem_mg.freemem[j + 1];
-                mem_mg.freemem[j + 1] = temp;
+                struct MEM_BLOCK temp = MEM_MG.freemem[j];
+                MEM_MG.freemem[j] = MEM_MG.freemem[j + 1];
+                MEM_MG.freemem[j + 1] = temp;
             }
         }
     }
     // merge
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.freemem[i].size == 0)
+        if (MEM_MG.freemem[i].size == 0)
         {
             continue;
         }
-        for (int j = i + 1; j < MAX_MEMBK_CNT; j++)
+        for (int j = i + 1; j < __MAX_MEMBK_CNT; j++)
         {
-            if (mem_mg.freemem[j].size == 0)
+            if (MEM_MG.freemem[j].size == 0)
             {
                 continue;
             }
-            if (mem_mg.freemem[i].start_addr + mem_mg.freemem[i].size == mem_mg.freemem[j].start_addr)
+            if (MEM_MG.freemem[i].start_addr + MEM_MG.freemem[i].size == MEM_MG.freemem[j].start_addr)
             {
-                mem_mg.freemem[i].size += mem_mg.freemem[j].size;
-                mem_mg.freemem[j].size = 0;
+                MEM_MG.freemem[i].size += MEM_MG.freemem[j].size;
+                MEM_MG.freemem[j].size = 0;
             }
         }
     }
@@ -141,31 +142,31 @@ int free(void *ptr)
     {
         return 0;
     }
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.allocmem[i].start_addr == addr)
+        if (MEM_MG.allocmem[i].start_addr == addr)
         {
-            size = mem_mg.allocmem[i].size;
-            mem_mg.allocmem[i].start_addr = 0;
-            mem_mg.allocmem[i].size = 0;
+            size = MEM_MG.allocmem[i].size;
+            MEM_MG.allocmem[i].start_addr = 0;
+            MEM_MG.allocmem[i].size = 0;
             break;
         }
     }
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.freemem[i].start_addr == addr + size)
+        if (MEM_MG.freemem[i].start_addr == addr + size)
         {
-            mem_mg.freemem[i].start_addr -= size;
-            mem_mg.freemem[i].size += size;
+            MEM_MG.freemem[i].start_addr -= size;
+            MEM_MG.freemem[i].size += size;
             return 1;
         }
     }
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.freemem[i].size == 0)
+        if (MEM_MG.freemem[i].size == 0)
         {
-            mem_mg.freemem[i].start_addr = addr;
-            mem_mg.freemem[i].size = size;
+            MEM_MG.freemem[i].start_addr = addr;
+            MEM_MG.freemem[i].size = size;
             return 1;
         }
     }
@@ -179,19 +180,19 @@ void *alloc(uint64_t size)
     {
         return 0;
     }
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.freemem[i].size >= size)
+        if (MEM_MG.freemem[i].size >= size)
         {
-            int addr = mem_mg.freemem[i].start_addr;
-            mem_mg.freemem[i].start_addr += size;
-            mem_mg.freemem[i].size -= size;
-            for (int j = 0; j < MAX_MEMBK_CNT; j++)
+            int addr = MEM_MG.freemem[i].start_addr;
+            MEM_MG.freemem[i].start_addr += size;
+            MEM_MG.freemem[i].size -= size;
+            for (int j = 0; j < __MAX_MEMBK_CNT; j++)
             {
-                if (mem_mg.allocmem[j].size == 0)
+                if (MEM_MG.allocmem[j].size == 0)
                 {
-                    mem_mg.allocmem[j].start_addr = addr;
-                    mem_mg.allocmem[j].size = size;
+                    MEM_MG.allocmem[j].start_addr = addr;
+                    MEM_MG.allocmem[j].size = size;
                     break;
                 }
             }
@@ -209,15 +210,15 @@ void *alloc_4k(uint64_t size)
     }
     int idx = -1;
     uint64_t alloc_addr = 0;
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.freemem[i].size >= size)
+        if (MEM_MG.freemem[i].size >= size)
         {
-            for (uint64_t k = mem_mg.freemem[i].start_addr & 0xfffff000;
-                 (k) < (mem_mg.freemem[i].start_addr + mem_mg.freemem[i].size); k += 4096)
+            for (uint64_t k = MEM_MG.freemem[i].start_addr & 0xfffff000;
+                 (k) < (MEM_MG.freemem[i].start_addr + MEM_MG.freemem[i].size); k += 4096)
             {
-                if ((k >= mem_mg.freemem[i].start_addr) &&
-                    (k + size < mem_mg.freemem[i].start_addr + mem_mg.freemem[i].size))
+                if ((k >= MEM_MG.freemem[i].start_addr) &&
+                    (k + size < MEM_MG.freemem[i].start_addr + MEM_MG.freemem[i].size))
                 {
                     alloc_addr = k;
                     break;
@@ -234,28 +235,28 @@ void *alloc_4k(uint64_t size)
     {
         return 0;
     }
-    uint64_t free_size = alloc_addr - mem_mg.freemem[idx].start_addr;
-    uint64_t old_start_addr = mem_mg.freemem[idx].start_addr;
-    mem_mg.freemem[idx].start_addr += (size + free_size);
-    mem_mg.freemem[idx].size -= (size + free_size);
+    uint64_t free_size = alloc_addr - MEM_MG.freemem[idx].start_addr;
+    uint64_t old_start_addr = MEM_MG.freemem[idx].start_addr;
+    MEM_MG.freemem[idx].start_addr += (size + free_size);
+    MEM_MG.freemem[idx].size -= (size + free_size);
     if (free_size)
     {
-        for (int i = 0; i < MAX_MEMBK_CNT; i++)
+        for (int i = 0; i < __MAX_MEMBK_CNT; i++)
         {
-            if (mem_mg.freemem[i].size == 0)
+            if (MEM_MG.freemem[i].size == 0)
             {
-                mem_mg.freemem[i].start_addr = old_start_addr;
-                mem_mg.freemem[i].size = free_size;
+                MEM_MG.freemem[i].start_addr = old_start_addr;
+                MEM_MG.freemem[i].size = free_size;
                 break;
             }
         }
     }
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        if (mem_mg.allocmem[i].size == 0)
+        if (MEM_MG.allocmem[i].size == 0)
         {
-            mem_mg.allocmem[i].start_addr = alloc_addr;
-            mem_mg.allocmem[i].size = size;
+            MEM_MG.allocmem[i].start_addr = alloc_addr;
+            MEM_MG.allocmem[i].size = size;
 
             break;
         }
@@ -265,9 +266,9 @@ void *alloc_4k(uint64_t size)
 uint64_t get_freemem()
 {
     uint64_t size = 0;
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        size += mem_mg.freemem[i].size;
+        size += MEM_MG.freemem[i].size;
     }
     return size;
 }
@@ -275,9 +276,9 @@ uint64_t get_freemem()
 uint64_t get_allocmem()
 {
     uint64_t size = 0;
-    for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
-        size += mem_mg.allocmem[i].size;
+        size += MEM_MG.allocmem[i].size;
     }
     return size;
 }
@@ -286,19 +287,19 @@ void mg_info()
 {
     console_write_color("Memory Manage:\n", rc_black, rc_red);
     console_printf("Allocated memory: %D KB\n", (uint64_t)(get_allocmem() / 1024));
-    // for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    // for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     // {
-    //     if (mem_mg.allocmem[i].start_addr != 0)
+    //     if (MEM_MG.allocmem[i].start_addr != 0)
     //     {
-    //         console_printf("  [ %d ]- Start:%x Size:%x\n", i, mem_mg.allocmem[i].start_addr, mem_mg.allocmem[i].size);
+    //         console_printf("  [ %d ]- Start:%x Size:%x\n", i, MEM_MG.allocmem[i].start_addr, MEM_MG.allocmem[i].size);
     //     }
     // }
     console_printf("Free memory: %D KB\n", (uint64_t)(get_freemem() / 1024));
-    // for (int i = 0; i < MAX_MEMBK_CNT; i++)
+    // for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     // {
-    //     if (mem_mg.freemem[i].start_addr != 0)
+    //     if (MEM_MG.freemem[i].start_addr != 0)
     //     {
-    //         console_printf("  [ %d ] - Start:%x Size:%x\n", i, mem_mg.freemem[i].start_addr, mem_mg.freemem[i].size);
+    //         console_printf("  [ %d ] - Start:%x Size:%x\n", i, MEM_MG.freemem[i].start_addr, MEM_MG.freemem[i].size);
     //     }
     // }
 }

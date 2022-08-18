@@ -1,6 +1,6 @@
 #ifndef TASK_H
 #define TASK_H
-#define MAX_TASK_NUM 10
+#define __MAX_TASK_NUM 10
 struct Task
 {
     int eax;
