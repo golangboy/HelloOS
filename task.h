@@ -1,8 +1,10 @@
 #ifndef TASK_H
 #define TASK_H
 #define __MAX_TASK_NUM 10
+#include "types.h"
 struct Task
 {
+    int tid;
     int eax;
     int ebx;
     int ecx;
@@ -19,8 +21,9 @@ struct Task
 };
 void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int eip, int cs, int eflags);
 void init_task();
-void start_task(int func, int stack);
+uint32_t start_task(int func, int stack);
 void sleep(int s);
 void exit_task();
+uint32_t find_tid();
 extern void switch_task(int esp, int eip,int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags);
 #endif

@@ -1,11 +1,12 @@
 #include "task.h"
 #include "timer.h"
 #include "console.h"
+#include "types.h"
 struct Task task_list[__MAX_TASK_NUM];
 int curtask_idx = -1;
 int first_task = 1;
 void task_finish(int task_idx);
-void start_task(int func, int stack)
+uint32_t start_task(int func, int stack)
 {
     asm volatile("cli");
     for (int i = 1; i < __MAX_TASK_NUM; i++)
@@ -22,7 +23,8 @@ void start_task(int func, int stack)
             task_list[i].esi = 0;
             task_list[i].edi = 0;
             task_list[i].ebp = 0;
-            break;
+            task_list[i].tid = find_tid();
+            return task_list[i].tid;
         }
     }
     asm volatile("sti");
@@ -31,6 +33,7 @@ void init_task()
 {
     for (int i = 0; i < __MAX_TASK_NUM; i++)
     {
+        task_list[i].tid = 0;
         task_list[i].valid = 0;
         task_list[i].time_ticket = 0;
     }
@@ -96,4 +99,20 @@ void sleep(int s)
     asm volatile("sti");
     //立刻中断调度
     asm volatile("int $32");
+}
+
+uint32_t find_tid()
+{
+    uint32_t tid = 0;
+    for (int i = 0; i < __MAX_TASK_NUM; i++)
+    {
+        if (task_list[i].valid == 1)
+        {
+            if (tid < task_list[i].tid)
+            {
+                tid = task_list[i].tid;
+            }
+        }
+    }
+    return tid + 1;
 }
