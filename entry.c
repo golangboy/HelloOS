@@ -43,9 +43,9 @@ int entry(struct multiboot_t *m)
     init_timer();
     init_sym(m);
     mg_info();
-    // start_task(taskA, 0x200000);
-    // start_task(taskB, 0x200000 + 0x1000);
-    // start_task(taskC, 0x200000 + 0x2000);
+    start_task(taskA, (int)((int)alloc(1024) + 1023));
+    start_task(taskB, (int)((int)alloc(1024) + 1023));
+    start_task(taskC, (int)((int)alloc(1024) + 1023));
     console_printf("Initial Finish!\n");
     asm volatile("sti");
     while (1)
