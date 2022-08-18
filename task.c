@@ -13,10 +13,7 @@ void start_task(int func, int stack)
         if (task_list[i].valid == 0)
         {
             task_list[i].valid = 1;
-            *((int *)(stack)) = i;
-            *((int *)(stack - 4)) = 0;
-            *((int *)(stack - 8)) = task_finish;
-            task_list[i].esp = stack - 8;
+            task_list[i].esp = stack;
             task_list[i].eip = func;
             task_list[i].eax = 0;
             task_list[i].ebx = 0;
@@ -38,10 +35,10 @@ void init_task()
         task_list[i].time_ticket = 0;
     }
 }
-void task_finish(int task_idx)
+void exit_task()
 {
     asm volatile("cli");
-    task_list[task_idx].valid = 0;
+    task_list[curtask_idx].valid = 0;
     asm volatile("sti");
     while (1)
         ;

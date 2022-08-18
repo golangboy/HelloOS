@@ -21,5 +21,6 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
 void init_task();
 void start_task(int func, int stack);
 void sleep(int s);
+void exit_task();
 extern void switch_task(int esp, int eip,int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags);
 #endif
