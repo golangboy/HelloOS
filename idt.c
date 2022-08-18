@@ -53,19 +53,52 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
     // console_printf("CS:%x\n", cs);
     // console_printf("EFLAGS:%x\n", eflags);
     // console_printf("EAX:%x EBX:%x ECX:%x EDX:%x\n EDI:%x ESI:%x ESP:%x EBP:%x\n", eax, ebx, ecx, edx, edi, esi, esp, ebp);
-    if (vecNum == 32)
+    if (vecNum == __TIMER_IDTVEC)
     {
+        int src_cs = 0;
+        // read cs register
+        asm volatile("mov %%cs, %0"
+                     : "=r"(src_cs));
         int tmp = eflags;
         if (eflags & 0x200)
         {
             tmp = eflags ^ 0x200;
         }
-        schdule(esp + 0x30, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, tmp);
+        if ((src_cs & 3) != (cs & 3)) // 特权级发生变化
+        {
+            int r3_eip = 0;
+            int r3_cs = 0;
+            int r3_eflags = 0;
+            int r3_esp = 0;
+            int r3_ss = 0;
+
+            int src_esp = (int)((int *)esp + 9);
+            r3_eip = *((int *)src_esp);
+            r3_cs = *((int *)src_esp + 1);
+            r3_eflags = *((int *)src_esp + 2);
+            r3_esp = *((int *)src_esp + 3);
+            r3_ss = *((int *)src_esp + 4);
+            if (r3_eflags & 0x200)
+            {
+                r3_eflags = r3_eflags ^ 0x200;
+            }
+            schdule(r3_esp, ebp, edi, esi, edx, ecx, ebx, eax, r3_eip, r3_cs, r3_eflags);
+        }
+        else
+        {
+            schdule(esp + 0x30, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, tmp);
+        }
+
         // console_printf("Nerver reach here\n");
     }
     else if (vecNum == __SYSTEM_CALL_IDTVEC) // 系统调用
     {
         console_printf("[System Call Test]\n");
+    }
+    else if (vecNum == __PAGE_FAULT_IDTVEC)
+    {
+        console_printf("IDT Vector:%d - EIP:%x - Name:%s\n", vecNum, eip, lookup_sym(eip));
+        page_falut();
     }
     else
     {

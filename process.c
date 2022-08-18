@@ -3,6 +3,7 @@
 #include "mm.h"
 #include "debug.h"
 #include "task.h"
+#include "console.h"
 void init_pcb_list()
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)
@@ -93,6 +94,20 @@ struct PCB *getpcbbypid(uint32_t pid)
         if (pcb_list[i].valid == 1 && pcb_list[i].pid == pid)
         {
             return &pcb_list[i];
+        }
+    }
+    return 0;
+}
+uint32_t getcurpid()
+{
+    uint32_t cr3 = 0;
+    asm volatile("mov %%cr3, %0"
+                 : "=r"(cr3));
+    for (int i = 0; i < __MAX_PCB_NUM; i++)
+    {
+        if (pcb_list[i].valid == 1 && pcb_list[i].cr3 == cr3)
+        {
+            return pcb_list[i].pid;
         }
     }
     return 0;

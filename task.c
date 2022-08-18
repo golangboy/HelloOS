@@ -119,7 +119,6 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     uint32_t next_tid = curtask_idx;
     uint32_t next_pid = getpidbytid(next_tid);
     // if (0 != cur_tid && 0 != next_tid)
-    //console_printf("task %d(%d) switch to task %d(%d)\n", cur_tid, cur_pid, next_tid, next_pid);
     if (0 == next_pid)
     {
         uint32_t cr3 = (uint32_t)kernel_pde_entry;
@@ -182,7 +181,7 @@ void save_r0_tss()
     asm volatile("sgdt %0"
                  : "=m"(gdt_base));
     uint32_t tss_gdts = (uint32_t)((gdt_base) >> 16);
-    //console_printf("gdt_base:%X\n", gdt_base >> 16);
+    // console_printf("gdt_base:%X\n", gdt_base >> 16);
     r0_tss_desc.limit_low = sizeof(r0_tss) - 1;
     r0_tss_desc.base_low = (uint32_t)&r0_tss & 0xffff;
     r0_tss_desc.base_mid = ((uint32_t)&r0_tss >> 16) & 0xff;

@@ -180,6 +180,7 @@ int free(void *ptr)
 
 void *alloc(uint64_t size)
 {
+    uint32_t pid = getcurpid();
     merge();
     if (0 == size)
     {
@@ -198,6 +199,7 @@ void *alloc(uint64_t size)
                 {
                     MEM_MG.allocmem[j].start_addr = addr;
                     MEM_MG.allocmem[j].size = size;
+                    MEM_MG.allocmem[j].pid = pid;
                     break;
                 }
             }
@@ -208,6 +210,7 @@ void *alloc(uint64_t size)
 }
 void *alloc_4k(uint64_t size)
 {
+    uint32_t pid = getcurpid();
     merge();
     if (0 == size)
     {
@@ -262,7 +265,7 @@ void *alloc_4k(uint64_t size)
         {
             MEM_MG.allocmem[i].start_addr = alloc_addr;
             MEM_MG.allocmem[i].size = size;
-
+            MEM_MG.allocmem[i].pid = pid;
             break;
         }
     }
@@ -307,4 +310,41 @@ void mg_info()
     //         console_printf("  [ %d ] - Start:%x Size:%x\n", i, MEM_MG.freemem[i].start_addr, MEM_MG.freemem[i].size);
     //     }
     // }
+}
+//缺页中断
+void page_falut()
+{
+    int cr2 = 0;
+    asm volatile("mov %%cr2, %0"
+                 : "=r"(cr2));
+    console_printf("Page Fault - CR2:%x\n", cr2);
+    int pde_idx = cr2 >> 22;
+    int pte_idx = (cr2 >> 12) & 0x3ff;
+    int offset = cr2 & 0x3ff;
+    int cr3 = 0;
+    asm volatile("mov %%cr3, %0"
+                 : "=r"(cr3));
+    struct PDE *cur_pde = (struct PDE *)(cr3 + pde_idx * sizeof(struct PDE));
+    if (cur_pde->present == 0)
+    {
+        // console_printf("Page Fault - PDE not present\n");
+        cur_pde->present = 1;
+        cur_pde->rw = 1;
+        cur_pde->user = 1;
+        struct PTE *pte_entry = alloc_4k(4 * 1024);
+        ASSERT(pte_entry != 0);
+        cur_pde->frame = (uint32_t)pte_entry >> 12;
+    }
+    struct PTE *cur_pte = (struct PTE *)(((uint32_t)cur_pde->frame) << 12);
+    ASSERT(cur_pte != 0);
+    if (cur_pte[pte_idx].present == 0)
+    {
+        // console_printf("Page Fault - PTE not present\n");
+        cur_pte[pte_idx].present = 1;
+        cur_pte[pte_idx].rw = 1;
+        cur_pte[pte_idx].user = 1;
+        void *phy_page = alloc_4k(4 * 1024);
+        ASSERT(phy_page != 0);
+        cur_pte[pte_idx].frame = ((uint32_t)phy_page) >> 12;
+    }
 }
