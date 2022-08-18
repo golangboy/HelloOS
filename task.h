@@ -64,6 +64,7 @@ struct TSS_DESCRIPTOR
     uint8_t granularity : 1;
     uint8_t base_high;
 };
+struct Task task_list[__MAX_TASK_NUM];
 struct TSS r0_tss;
 struct TSS_DESCRIPTOR r0_tss_desc;
 void save_r0_tss();

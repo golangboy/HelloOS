@@ -1,6 +1,10 @@
 [bits 32]
 [GLOBAL switch_task]
+[GLOBAL switch_r3]
+[GLOBAL tttt]
 global switch_task
+global switch_r3
+global tttt
 ;int esp, int eip,int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags
 switch_task:
     add esp,4        ;remove ret address
@@ -22,3 +26,23 @@ switch_task:
     pop eax
     sti
     ret
+switch_r3:
+    add esp,4        ;remove ret address
+    mov eax,0x28|3
+    mov ds,eax
+    mov fs,eax
+    mov gs,eax
+    mov es,eax
+    pop eax
+    pop ebx
+    pop ecx
+    pop edx
+    pop edi
+    pop esi
+    pop ebp
+    iret
+tttt:
+    int 49      ;;系统调用
+    int 49      ;;系统调用
+    int 49      ;;系统调用
+    jmp $

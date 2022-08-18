@@ -15,11 +15,11 @@ uint32_t getpidbytid(uint32_t tid)
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)
     {
-        if (pcb_list[i].valid == 1)
+        if (pcb_list[i].valid == 1) //进程有效
         {
-            for (int j = 0; j < __MAX_TASK_NUM; j++)
+            for (int j = 0; j < __MAX_PCBTASK_NUM; j++)
             {
-                if (pcb_list[i].tasks[j] == tid)
+                if (pcb_list[i].tasks[j].tid == tid && pcb_list[i].tasks[j].valid == 1)
                 {
                     return pcb_list[i].pid;
                 }
@@ -62,9 +62,10 @@ uint32_t create_pcb(char *uname, void *entry)
             // init task sets
             for (int j = 0; j < __MAX_TASK_NUM; j++)
             {
-                pcb_list[i].tasks[j] = 0;
+                pcb_list[i].tasks[j].valid = 0;
             }
-            start_task(entry, 0x4000000);
+            pcb_list[i].tasks[0].valid = 1;
+            pcb_list[i].tasks[0].tid = start_task(entry, 0x4000000);
             return new_pid;
         }
     }

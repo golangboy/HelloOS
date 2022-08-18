@@ -29,6 +29,10 @@ void load_idt()
         idt_desc.idt[i].selector = 0x10;
         idt_desc.idt[i].always0 = 0;
         idt_desc.idt[i].flags = 0x8E;
+        if (__SYSTEM_CALL_IDTVEC == i)
+        {
+            idt_desc.idt[i].flags = 0xEE;
+        }
     }
     idt_desc.base = (uint32_t) & (idt_desc.idt);
     idt_desc.limit = (sizeof(struct interupt_gate) * __IDT_NUM) - 1;
@@ -38,7 +42,7 @@ void load_idt()
 }
 void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int vecNum, int errCode, int eip, int cs, int eflags)
 {
-    if(39 == vecNum)
+    if (39 == vecNum)
     {
         return;
     }
@@ -58,5 +62,13 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
         }
         schdule(esp + 0x30, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, tmp);
         // console_printf("Nerver reach here\n");
+    }
+    else if (vecNum == __SYSTEM_CALL_IDTVEC) // 系统调用
+    {
+        console_printf("[System Call Test]\n");
+    }
+    else
+    {
+        //console_printf("IDT Vector:%d - EIP:%x - Name:%s \n", vecNum, eip, lookup_sym(eip));
     }
 }
