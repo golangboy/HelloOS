@@ -4,6 +4,7 @@
 #include "types.h"
 #include "process.h"
 #include "mm.h"
+#include "strings.h"
 struct Task task_list[__MAX_TASK_NUM];
 int curtask_idx = -1;
 int first_task = 1;
@@ -58,6 +59,29 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
         curtask_idx = 0;
         first_task = 0;
         task_list[curtask_idx].valid = 1;
+    }
+    if (cur_pid == 0 && cur_tid == 0)
+    {
+        r0_tss.eax = eax;
+        r0_tss.ebx = ebx;
+        r0_tss.ecx = ecx;
+        r0_tss.edx = edx;
+        r0_tss.esi = esi;
+        r0_tss.edi = edi;
+        r0_tss.ebp = ebp;
+        r0_tss.eip = eip;
+        r0_tss.cs = cs;
+        r0_tss.eflags = eflags | 0x200;
+        r0_tss.esp = esp;
+        r0_tss.ss = 0x10;
+        r0_tss.ds = 0x18;
+        r0_tss.es = 0x18;
+        r0_tss.fs = 0x18;
+        r0_tss.gs = 0x18;
+        r0_tss.ldt = 0;
+        r0_tss.trap = 0;
+        r0_tss.iomap = 0;
+        save_r0_tss();
     }
     task_list[curtask_idx].eax = eax;
     task_list[curtask_idx].ebx = ebx;
@@ -134,4 +158,27 @@ uint32_t find_tid()
         }
     }
     return tid + 1;
+}
+void save_r0_tss()
+{
+    // get gdt table base
+    uint64_t gdt_base = 0;
+    // sgdt
+    asm volatile("sgdt %0"
+                 : "=m"(gdt_base));
+    uint32_t tss_gdts = (uint32_t)((gdt_base) >> 16);
+    // console_printf("gdt_base:%X\n", gdt_base>>16);
+    r0_tss_desc.limit_low = sizeof(r0_tss) - 1;
+    r0_tss_desc.base_low = (uint32_t)&r0_tss & 0xffff;
+    r0_tss_desc.base_mid = ((uint32_t)&r0_tss >> 16) & 0xff;
+    r0_tss_desc.base_high = ((uint32_t)&r0_tss >> 24) & 0xff;
+    r0_tss_desc.limit_high = 0x0;
+    r0_tss_desc.type = 0x9;
+    r0_tss_desc.p = 1;
+    r0_tss_desc.dpl = 0;
+    memcpy(tss_gdts + 8, &r0_tss_desc, sizeof(r0_tss_desc));
+    // lgdt
+    asm volatile("lgdt %0" ::"m"(gdt_base));
+    // ltr 0x8
+    asm volatile("ltr %%ax" ::"a"(0x8));
 }

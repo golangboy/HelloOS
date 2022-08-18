@@ -31,3 +31,13 @@ int strcpy(char *str1, char *str2)
     str1[i] = '\0';
     return 0;
 }
+int memcpy(void *dst, void *src, int len)
+{
+    int i = 0;
+    while (i < len)
+    {
+        ((char *)dst)[i] = ((char *)src)[i];
+        i++;
+    }
+    return 0;
+}
