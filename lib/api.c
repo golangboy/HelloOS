@@ -27,3 +27,8 @@ void puts(char *s)
     asm volatile("mov $3, %eax");
     asm volatile("int $49");
 }
+void clear()
+{
+    asm volatile("mov $4, %eax");
+    asm volatile("int $49");
+}
