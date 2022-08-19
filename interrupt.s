@@ -33,7 +33,12 @@ pop esi
 pop edx
 pop ecx
 pop ebx
+;系统调用,eax作为返回值
+%if %1!=49  
 pop eax
+%else
+add esp,4
+%endif
 add esp,4*2
 
 

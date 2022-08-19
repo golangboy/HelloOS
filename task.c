@@ -143,7 +143,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     switch_task(task_list[curtask_idx].esp, task_list[curtask_idx].eip, task_list[curtask_idx].eax, task_list[curtask_idx].ebx, task_list[curtask_idx].ecx, task_list[curtask_idx].edx, task_list[curtask_idx].esi, task_list[curtask_idx].edi, task_list[curtask_idx].ebp, task_list[curtask_idx].eflags);
 }
 // 延迟，单位是秒
-void sleep(int s)
+void sleep_kernel(int s)
 {
     asm volatile("cli");
 
@@ -191,4 +191,22 @@ void save_r0_tss()
     asm volatile("lgdt %0" ::"m"(gdt_base));
     // ltr 0x8
     asm volatile("ltr %%ax" ::"a"(0x8));
+}
+uint32_t get_curtid()
+{
+    return task_list[curtask_idx].tid;
+}
+struct Task *gettask_bytid(uint32_t tid)
+{
+    for (int i = 0; i < __MAX_TASK_NUM; i++)
+    {
+        if (task_list[i].valid == 1)
+        {
+            if (task_list[i].tid == tid)
+            {
+                return &task_list[i];
+            }
+        }
+    }
+    panic("gettask_bytid error");
 }

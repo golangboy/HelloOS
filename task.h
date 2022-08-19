@@ -71,8 +71,10 @@ void save_r0_tss();
 void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int eip, int cs, int eflags);
 void init_task();
 uint32_t start_task(int func, int stack);
-void sleep(int s);
+void sleep_kernel(int s);
 void exit_task();
 uint32_t find_tid();
+uint32_t get_curtid();
+struct Task *gettask_bytid(uint32_t tid);
 extern void switch_task(int esp, int eip, int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags);
 #endif

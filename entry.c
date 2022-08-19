@@ -10,7 +10,7 @@ void taskA()
     while (1)
     {
         console_printf("A");
-        sleep(1);
+        sleep_kernel(1);
     }
     exit_task();
 }
@@ -19,7 +19,7 @@ void taskB()
     for (int i = 0; i < 2; i++)
     {
         console_printf("B");
-        sleep(5);
+        sleep_kernel(5);
     }
     panic("Alloc fail");
     exit_task();
@@ -29,17 +29,25 @@ void taskC()
     for (int i = 0; i < 200; i++)
     {
         console_printf("C");
-        sleep(1);
+        sleep_kernel(1);
     }
     exit_task();
 }
 // r3下第一个进程的主线程
 void init()
 {
-    asm volatile("int $49");
     while (1)
     {
-        //asm volatile("int $49");
+        asm volatile("mov $0, %eax");
+        asm volatile("int $49");
+
+        asm volatile("mov $3, %ebx");
+        asm volatile("mov $1, %eax");
+        asm volatile("int $49");
+        asm volatile("int $32");
+
+        asm volatile("mov $0, %eax");
+        asm volatile("int $49");
     };
 }
 int entry(struct multiboot_t *m)

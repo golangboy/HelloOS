@@ -1,6 +1,7 @@
 #include "idt.h"
 #include "console.h"
 #include "elf.h"
+#include "lib/syscall.h"
 extern int idt_table;
 typedef struct interupt_gate
 {
@@ -30,6 +31,10 @@ void load_idt()
         idt_desc.idt[i].always0 = 0;
         idt_desc.idt[i].flags = 0x8E;
         if (__SYSTEM_CALL_IDTVEC == i)
+        {
+            idt_desc.idt[i].flags = 0xEE;
+        }
+        else if (__TIMER_IDTVEC == i)
         {
             idt_desc.idt[i].flags = 0xEE;
         }
@@ -93,7 +98,13 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
     }
     else if (vecNum == __SYSTEM_CALL_IDTVEC) // 系统调用
     {
-        console_printf("[System Call Test]\n");
+        // console_printf("[System Call Test]\n");
+        uint32_t ret = syscall(eax, ebx, ecx, edx, edi, esi);
+        // change eax
+        asm volatile("mov %0, %%eax"
+                     :
+                     : "r"(ret));
+        return;
     }
     else if (vecNum == __PAGE_FAULT_IDTVEC)
     {
@@ -102,6 +113,6 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
     }
     else
     {
-        //console_printf("IDT Vector:%d - EIP:%x - Name:%s \n", vecNum, eip, lookup_sym(eip));
+        // console_printf("IDT Vector:%d - EIP:%x - Name:%s \n", vecNum, eip, lookup_sym(eip));
     }
 }
