@@ -5,6 +5,9 @@
 #include "elf.h"
 #include "mm.h"
 #include "debug.h"
+#include "task.h"
+#include "process.h"
+#include "pic.h"
 #include "lib/init.h"
 void taskA()
 {

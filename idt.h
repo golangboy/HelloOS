@@ -4,4 +4,5 @@
 #define __SYSTEM_CALL_IDTVEC 49
 #define __TIMER_IDTVEC 32
 #define __PAGE_FAULT_IDTVEC 14
+void load_idt();
 #endif

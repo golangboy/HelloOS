@@ -2,6 +2,8 @@
 #include "console.h"
 #include "elf.h"
 #include "syscall.h"
+#include "task.h"
+#include "mm.h"
 extern int idt_table;
 typedef struct interupt_gate
 {

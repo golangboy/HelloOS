@@ -42,5 +42,6 @@ uint64_t get_freemem();
 uint64_t get_allocmem();
 void mg_info();
 void page_falut();
+void init_vm();
 struct PDE *kernel_pde_entry;
 #endif

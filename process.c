@@ -102,7 +102,7 @@ struct PCB *get_pcb_bypid(uint32_t pid)
     return 0;
 }
 // 获取当前进程pid，如果是内核返回0
-uint32_t getcurpid()
+uint32_t get_curpid()
 {
     uint32_t cr3 = 0;
     asm volatile("mov %%cr3, %0"

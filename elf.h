@@ -2,6 +2,7 @@
 #define ELF_H
 #include "lib/types.h"
 #include "multiboot.h"
+#include "lib/strings.h"
 #define ELF32_ST_TYPE(i) ((i)&0xf)
 
 // ELF 格式区段头

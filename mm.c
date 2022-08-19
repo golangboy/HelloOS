@@ -2,6 +2,7 @@
 #include "console.h"
 #include "multiboot.h"
 #include "debug.h"
+#include "process.h"
 int mg_bkcnt = 0;
 struct MEM_MG MEM_MG;
 extern uint8_t kern_start[];
@@ -180,7 +181,7 @@ int free(void *ptr)
 
 void *alloc(uint64_t size)
 {
-    uint32_t pid = getcurpid();
+    uint32_t pid = get_curpid();
     merge();
     if (0 == size)
     {
@@ -210,7 +211,7 @@ void *alloc(uint64_t size)
 }
 void *alloc_4k(uint64_t size)
 {
-    uint32_t pid = getcurpid();
+    uint32_t pid = get_curpid();
     merge();
     if (0 == size)
     {
