@@ -56,5 +56,10 @@ int syscall(int eax, int ebx, int ecx, int edx, int edi, int esi)
         console_clear();
         return 0;
     }
+    else if (eax == __SYSCALL_PUTC)
+    {
+        console_putc_color(ebx, rc_black, rc_white);
+        return 0;
+    }
     return 1;
 }
