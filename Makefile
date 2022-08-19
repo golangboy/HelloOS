@@ -1,9 +1,9 @@
 all:
 	nasm -f elf -g -F stabs boot.s -o bin/boot.o
-	nasm -f elf -g -F stabs interrupt.s -o bin/interrupt.o
-	nasm -f elf -g -F stabs switch_task.s -o bin/switch_task.o
-	nasm -f elf -g -F stabs gdt.s -o bin/gdt.o
-	cd bin && gcc -O0 -c -m32 -g -fcf-protection=none -mmanual-endbr -no-pie -fno-pic -gstabs+ -nostdinc -fno-builtin -fno-stack-protector ../lib/*.c ../*.c
+	nasm -f elf -g -F stabs kernel/interrupt.s -o bin/interrupt.o
+	nasm -f elf -g -F stabs kernel/switch_task.s -o bin/switch_task.o
+	nasm -f elf -g -F stabs kernel/gdt.s -o bin/gdt.o
+	cd bin && gcc -O0 -c -m32 -g -fcf-protection=none -mmanual-endbr -no-pie -fno-pic -gstabs+ -nostdinc -fno-builtin -fno-stack-protector ../*.c ../user/*.c ../kernel/*.c ../lib/*.c
 	ld -T kernel.ld -m elf_i386 -nostdlib bin/*.o -o bin/kernel
 move:
 	rm -r -f /g

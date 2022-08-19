@@ -1,9 +1,11 @@
-#include "idt.h"
-#include "console.h"
-#include "elf.h"
-#include "syscall.h"
-#include "task.h"
-#include "mm.h"
+#include "./include/idt.h"
+#include "./include/console.h"
+#include "../lib/include/elf.h"
+#include "./include/syscall.h"
+#include "./include/task.h"
+#include "./include/mm.h"
+#include "./include/keyboard.h"
+#include "./include/debug.h"
 extern int idt_table;
 typedef struct __attribute__((packed)) interupt_gate
 {
@@ -97,6 +99,10 @@ void idt_handler(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, 
         }
 
         // console_printf("Nerver reach here\n");
+    }
+    else if (vecNum == __KEYBOARD_IDTVEC)
+    {
+        keyboard_handler();
     }
     else if (vecNum == __SYSTEM_CALL_IDTVEC) // 系统调用
     {

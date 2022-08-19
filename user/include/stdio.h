@@ -1,6 +1,6 @@
 #ifndef STDIO_H
 #define STDIO_H
-#include "types.h"
+#include "../../lib/include/types.h"
 #include "utils.h"
 void puts(char *s);
 void putc(char c);

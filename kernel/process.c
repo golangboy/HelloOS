@@ -1,9 +1,9 @@
-#include "process.h"
-#include "lib/strings.h"
-#include "mm.h"
-#include "debug.h"
-#include "task.h"
-#include "console.h"
+#include "./include/process.h"
+#include "../lib/include/strings.h"
+#include "./include/mm.h"
+#include "./include/debug.h"
+#include "./include/task.h"
+#include "./include/console.h"
 void init_pcb_list()
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)

@@ -1,11 +1,11 @@
-#include "task.h"
-#include "timer.h"
-#include "console.h"
-#include "lib/types.h"
-#include "process.h"
-#include "mm.h"
-#include "lib/strings.h"
-#include "debug.h"
+#include "./include/task.h"
+#include "./include/timer.h"
+#include "./include/console.h"
+#include "../lib/include/types.h"
+#include "./include/process.h"
+#include "./include/mm.h"
+#include "../lib/include/strings.h"
+#include "./include/debug.h"
 int curtask_idx = -1;
 int first_task = 1;
 //创建线程，成功返回tid，失败返回0

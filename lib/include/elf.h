@@ -1,8 +1,7 @@
 #ifndef ELF_H
 #define ELF_H
-#include "lib/types.h"
-#include "multiboot.h"
-#include "lib/strings.h"
+#include "./types.h"
+#include "./strings.h"
 #define ELF32_ST_TYPE(i) ((i)&0xf)
 
 // ELF 格式区段头
@@ -32,14 +31,13 @@ typedef struct elf_symbol_t
 } __attribute__((packed)) elf_symbol_t;
 
 // ELF 信息
-typedef struct elf_t
+typedef struct elf_debug_t
 {
     elf_symbol_t *symtab;
     uint32_t symtabsz;
     const char *strtab;
     uint32_t strtabsz;
-} elf_t;
+} elf_debug_t;
 
-void init_sym(struct multiboot_t *m);
-char *lookup_sym(uint32_t addr);
+
 #endif

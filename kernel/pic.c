@@ -1,4 +1,4 @@
-#include "pic.h"
+#include "./include/pic.h"
 void init_8259()
 {
     // 重新映射 IRQ 表
@@ -26,7 +26,7 @@ void init_8259()
     outb(0xA1, 0x01);
 
     // 设置主从片允许中断
-    outb(0x21, 0xFE);
+    outb(0x21, 0xFC);
     outb(0xA1, 0xFF);
 }
 

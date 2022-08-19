@@ -1,8 +1,8 @@
-#include "mm.h"
-#include "console.h"
-#include "multiboot.h"
-#include "debug.h"
-#include "process.h"
+#include "./include/mm.h"
+#include "./include/console.h"
+#include "./include/multiboot.h"
+#include "./include/debug.h"
+#include "./include/process.h"
 int mg_bkcnt = 0;
 extern uint8_t kern_start[];
 extern uint8_t kern_end[];

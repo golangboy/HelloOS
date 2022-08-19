@@ -2,7 +2,7 @@
 #define USER_H
 #define __MAX_PCB_NUM 20
 #define __MAX_PCBTASK_NUM 20
-#include "lib/types.h"
+#include "../../lib/include/types.h"
 struct PCB_TASK_BK
 {
     uint32_t tid;

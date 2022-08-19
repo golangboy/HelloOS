@@ -1,9 +1,9 @@
-#include "lib/types.h"
-#include "syscall.h"
-#include "console.h"
-#include "task.h"
-#include "process.h"
-#include "timer.h"
+#include "../lib/include/types.h"
+#include "./include/syscall.h"
+#include "./include/console.h"
+#include "./include/task.h"
+#include "./include/process.h"
+#include "./include/timer.h"
 int syscall(int eax, int ebx, int ecx, int edx, int edi, int esi)
 {
     uint32_t tid = get_curtid();
