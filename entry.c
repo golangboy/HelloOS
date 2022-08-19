@@ -8,7 +8,7 @@
 #include "task.h"
 #include "process.h"
 #include "pic.h"
-#include "lib/init.h"
+#include "init.h"
 void taskA()
 {
     while (1)
