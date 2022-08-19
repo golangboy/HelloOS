@@ -8,10 +8,8 @@
 #include "debug.h"
 int curtask_idx = -1;
 int first_task = 1;
-void task_finish(int task_idx);
 uint32_t start_task(int func, int stack)
 {
-    asm volatile("cli");
     for (int i = 1; i < __MAX_TASK_NUM; i++)
     {
         if (task_list[i].valid == 0)
@@ -30,7 +28,6 @@ uint32_t start_task(int func, int stack)
             return task_list[i].tid;
         }
     }
-    asm volatile("sti");
 }
 void init_task()
 {
@@ -79,7 +76,6 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
         }
     }
     //寻找下一个可运行的任务
-    int old_idx = curtask_idx;
     for (int i = 0, k = 1; i < __MAX_TASK_NUM; i++, k++)
     {
         int next_task_idx = (k + curtask_idx) % __MAX_TASK_NUM;
@@ -146,7 +142,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     }
     switch_task(task_list[curtask_idx].esp, task_list[curtask_idx].eip, task_list[curtask_idx].eax, task_list[curtask_idx].ebx, task_list[curtask_idx].ecx, task_list[curtask_idx].edx, task_list[curtask_idx].esi, task_list[curtask_idx].edi, task_list[curtask_idx].ebp, task_list[curtask_idx].eflags);
 }
-
+// 延迟，单位是秒
 void sleep(int s)
 {
     asm volatile("cli");

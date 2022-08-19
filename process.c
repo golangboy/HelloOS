@@ -29,6 +29,7 @@ uint32_t getpidbytid(uint32_t tid)
     }
     return 0;
 }
+// uname 进程名 entry主线程的入口地址
 uint32_t create_pcb(char *uname, void *entry)
 {
     uint32_t new_pid = findfreepid();
@@ -72,6 +73,7 @@ uint32_t create_pcb(char *uname, void *entry)
     }
     panic("no space for new pcb");
 }
+// 获取一个空闲的pid
 uint32_t findfreepid()
 {
     uint32_t pid = 0;
@@ -87,6 +89,7 @@ uint32_t findfreepid()
     }
     return pid + 1;
 }
+// 根据pid获取pcb
 struct PCB *getpcbbypid(uint32_t pid)
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)
@@ -98,6 +101,7 @@ struct PCB *getpcbbypid(uint32_t pid)
     }
     return 0;
 }
+// 获取当前进程pid，如果是内核返回0
 uint32_t getcurpid()
 {
     uint32_t cr3 = 0;
