@@ -23,5 +23,6 @@ uint32_t get_pid_bytid(uint32_t tid);
 uint32_t find_freepid();
 uint32_t get_curpid();
 uint32_t get_pid_bytid(uint32_t tid);
+void free_process(uint32_t pid);
 struct PCB *get_pcb_bypid(uint32_t pid);
 #endif

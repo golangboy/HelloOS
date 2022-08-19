@@ -13,3 +13,9 @@ void sleep(int s)
     asm volatile("int $49");
     asm volatile("int $32");
 }
+void exitthread()
+{
+    asm volatile("mov $2, %eax");
+    asm volatile("int $49");
+    asm volatile("int $32");
+}

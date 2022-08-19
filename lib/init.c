@@ -2,9 +2,10 @@
 #include "api.h"
 void init()
 {
-    while (1)
+    for (int i = 0; i < 2; i++)
     {
         test();
-        sleep(5);
+        sleep(i+1+3);
     }
+    exitthread();
 }

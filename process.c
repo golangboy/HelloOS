@@ -116,3 +116,24 @@ uint32_t get_curpid()
     }
     return 0;
 }
+void free_process(uint32_t pid)
+{
+    uint32_t total_mem = 0;
+    for (int i = 0; i < __MAX_MEMBK_ALLOC_CNT; i++)
+    {
+        if (MEM_MG.allocmem[i].pid == pid)
+        {
+            total_mem += MEM_MG.allocmem[i].size;
+        }
+    }
+    //释放占用的所有内存
+    for (int i = 0; i < __MAX_MEMBK_ALLOC_CNT; i++)
+    {
+        if (MEM_MG.allocmem[i].pid == pid)
+        {
+            int ret = free((void *)MEM_MG.allocmem[i].start_addr);
+            ASSERT(ret == 1);
+        }
+    }
+    console_printf("Free size:%d\n", total_mem);
+}
