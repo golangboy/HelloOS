@@ -8,8 +8,29 @@
 #include "debug.h"
 int curtask_idx = -1;
 int first_task = 1;
+//创建线程，成功返回tid，失败返回0
 uint32_t start_task(int func, int stack)
 {
+    uint32_t pid = get_curpid();
+    struct PCB *pcb = get_pcb_bypid(pid);
+    int hasspace = 0, idx = 0;
+    ASSERT(pid == 0 || (pcb != 0))
+    //是否已经达到最大的线程数
+    for (int i = 0; i < __MAX_PCBTASK_NUM; i++)
+    {
+        if (pcb->tasks[i].valid == 0)
+        {
+            hasspace = 1;
+            idx = i;
+            break;
+        }
+    }
+    if (hasspace == 0 && pid != 0)
+    {
+        //用户进程的线程数已经达到最大
+        // console_printf("No space for new task!\n");
+        return 0;
+    }
     for (int i = 1; i < __MAX_TASK_NUM; i++)
     {
         if (task_list[i].valid == 0)
@@ -25,9 +46,12 @@ uint32_t start_task(int func, int stack)
             task_list[i].edi = 0;
             task_list[i].ebp = 0;
             task_list[i].tid = find_tid();
+            pcb->tasks[idx].tid = task_list[i].tid;
+            pcb->tasks[idx].valid = 1;
             return task_list[i].tid;
         }
     }
+    return 0;
 }
 void init_task()
 {
@@ -153,7 +177,7 @@ void sleep_kernel(int s)
     //立刻中断调度
     asm volatile("int $32");
 }
-
+// 获取可用的tid
 uint32_t find_tid()
 {
     uint32_t tid = 0;
@@ -169,6 +193,7 @@ uint32_t find_tid()
     }
     return tid + 1;
 }
+// 保存r3到r0时用的ss、esp
 void save_r0_tss()
 {
     // get gdt table base
@@ -186,16 +211,18 @@ void save_r0_tss()
     r0_tss_desc.type = 0x9;
     r0_tss_desc.p = 1;
     r0_tss_desc.dpl = 0;
-    memcpy((void*)(tss_gdts + 8), &r0_tss_desc, sizeof(r0_tss_desc));
+    memcpy((void *)(tss_gdts + 8), &r0_tss_desc, sizeof(r0_tss_desc));
     // lgdt
     asm volatile("lgdt %0" ::"m"(gdt_base));
     // ltr 0x8
     asm volatile("ltr %%ax" ::"a"(0x8));
 }
+// 获取当前的线程id
 uint32_t get_curtid()
 {
     return task_list[curtask_idx].tid;
 }
+// 根据tid获取task结构
 struct Task *get_task_bytid(uint32_t tid)
 {
     for (int i = 0; i < __MAX_TASK_NUM; i++)
