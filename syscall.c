@@ -61,5 +61,9 @@ int syscall(int eax, int ebx, int ecx, int edx, int edi, int esi)
         console_putc_color(ebx, rc_black, rc_white);
         return 0;
     }
+    else if (eax == __SYSCALL_CREATE_THREAD)
+    {
+        return start_task(ebx, ecx);
+    }
     return 1;
 }
