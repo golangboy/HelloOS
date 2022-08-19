@@ -12,7 +12,7 @@ void init_pcb_list()
     }
 }
 // 根据任务id返回pid，如果找不到返回0，代表是内核任务
-uint32_t getpidbytid(uint32_t tid)
+uint32_t get_pid_bytid(uint32_t tid)
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)
     {

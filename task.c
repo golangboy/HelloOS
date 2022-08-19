@@ -56,7 +56,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
         task_list[curtask_idx].valid = 1;
     }
     uint32_t cur_tid = curtask_idx;
-    uint32_t cur_pid = getpidbytid(cur_tid);
+    uint32_t cur_pid = get_pid_bytid(cur_tid);
     task_list[curtask_idx].eax = eax;
     task_list[curtask_idx].ebx = ebx;
     task_list[curtask_idx].ecx = ecx;
@@ -113,7 +113,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
         save_r0_tss();
     }
     uint32_t next_tid = curtask_idx;
-    uint32_t next_pid = getpidbytid(next_tid);
+    uint32_t next_pid = get_pid_bytid(next_tid);
     // if (0 != cur_tid && 0 != next_tid)
     if (0 == next_pid)
     {
