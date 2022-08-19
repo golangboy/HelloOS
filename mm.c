@@ -75,7 +75,7 @@ void init_vm()
     pde_entry[0].frame = ((int)alloc_4k(1024 * 4)) >> 12;
     for (int i = 0, b = 0; i < 1024; i++)
     {
-        struct PTE *pte_entry = (pde_entry[0].frame) << 12;
+        struct PTE *pte_entry = (struct PTE *)((pde_entry[0].frame) << 12);
         pte_entry[i].present = 1;
         pte_entry[i].frame = b >> 12;
         pte_entry[i].user = 1;
@@ -142,7 +142,7 @@ void merge()
 }
 int free(void *ptr)
 {
-    uint64_t addr = (uint64_t)ptr;
+    uint32_t addr = (uint32_t)ptr;
     uint64_t size = 0;
     if (0 == addr)
     {
@@ -218,7 +218,7 @@ void *alloc_4k(uint64_t size)
         return 0;
     }
     int idx = -1;
-    uint64_t alloc_addr = 0;
+    uint32_t alloc_addr = 0;
     for (int i = 0; i < __MAX_MEMBK_CNT; i++)
     {
         if (MEM_MG.freemem[i].size >= size)
@@ -244,8 +244,8 @@ void *alloc_4k(uint64_t size)
     {
         return 0;
     }
-    uint64_t free_size = alloc_addr - MEM_MG.freemem[idx].start_addr;
-    uint64_t old_start_addr = MEM_MG.freemem[idx].start_addr;
+    uint32_t free_size = alloc_addr - MEM_MG.freemem[idx].start_addr;
+    uint32_t old_start_addr = MEM_MG.freemem[idx].start_addr;
     MEM_MG.freemem[idx].start_addr += (size + free_size);
     MEM_MG.freemem[idx].size -= (size + free_size);
     if (free_size)

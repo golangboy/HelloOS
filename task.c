@@ -186,7 +186,7 @@ void save_r0_tss()
     r0_tss_desc.type = 0x9;
     r0_tss_desc.p = 1;
     r0_tss_desc.dpl = 0;
-    memcpy(tss_gdts + 8, &r0_tss_desc, sizeof(r0_tss_desc));
+    memcpy((void*)(tss_gdts + 8), &r0_tss_desc, sizeof(r0_tss_desc));
     // lgdt
     asm volatile("lgdt %0" ::"m"(gdt_base));
     // ltr 0x8

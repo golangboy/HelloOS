@@ -67,7 +67,7 @@ uint32_t create_pcb(char *uname, void *entry)
                 pcb_list[i].tasks[j].valid = 0;
             }
             pcb_list[i].tasks[0].valid = 1;
-            pcb_list[i].tasks[0].tid = start_task(entry, 0x4000000);
+            pcb_list[i].tasks[0].tid = start_task((int)entry, 0x4000000);
             return new_pid;
         }
     }

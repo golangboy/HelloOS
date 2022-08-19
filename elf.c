@@ -6,17 +6,17 @@ void init_sym(struct multiboot_t *m)
     int nametable = sec[m->shndx].addr;
     for (int i = 0; i < m->num; i++)
     {
-        char *name = (const char *)(sec[i].name + (uint32_t)nametable);
-        //console_printf("%d - %s \n", i, name);
+        char *name = (char *)(sec[i].name + (uint32_t)nametable);
+        // console_printf("%d - %s \n", i, name);
         if (strcmp(name, ".symtab") == 0)
         {
 
-            elf.symtab = sec[i].addr;
+            elf.symtab = (elf_symbol_t *)sec[i].addr;
             elf.symtabsz = sec[i].size;
         }
         else if (strcmp(name, ".strtab") == 0)
         {
-            elf.strtab = sec[i].addr;
+            elf.strtab = (const char *)sec[i].addr;
             elf.strtabsz = sec[i].size;
         }
     }
@@ -28,7 +28,7 @@ char *lookup_sym(uint32_t addr)
     {
         if (addr >= elf.symtab[i].value && addr < elf.symtab[i].value + elf.symtab[i].size)
         {
-            return elf.strtab + elf.symtab[i].name;
+            return (char*)(elf.strtab + elf.symtab[i].name);
         }
     }
     return 0;

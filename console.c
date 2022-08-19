@@ -304,7 +304,7 @@ void console_printf(char *format, ...)
 				arg += 4;
 				break;
 			case 's':
-				console_write_color(*((int *)arg), rc_black, rc_white);
+				console_write_color((char*)*((int *)arg), rc_black, rc_white);
 				arg += 4;
 				break;
 			case 'd':
