@@ -5,20 +5,20 @@
 #include "task.h"
 #include "mm.h"
 extern int idt_table;
-typedef struct interupt_gate
+typedef struct __attribute__((packed)) interupt_gate
 {
     uint16_t offset_low;
     uint16_t selector;
     uint8_t always0;
     uint8_t flags;
     uint16_t offset_high;
-} __attribute__((packed));
-typedef struct interupt_descriptor
+}interupt_gate;
+typedef struct __attribute__((packed)) interupt_descriptor
 {
     uint16_t limit;
     uint32_t base;
     struct interupt_gate idt[__IDT_NUM];
-} __attribute__((packed));
+}interupt_descriptor;
 struct interupt_descriptor idt_desc;
 void load_idt()
 {
