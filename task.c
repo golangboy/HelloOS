@@ -1,10 +1,10 @@
 #include "task.h"
 #include "timer.h"
 #include "console.h"
-#include "types.h"
+#include "lib/types.h"
 #include "process.h"
 #include "mm.h"
-#include "strings.h"
+#include "lib/strings.h"
 #include "debug.h"
 int curtask_idx = -1;
 int first_task = 1;

@@ -1,6 +1,6 @@
 #ifndef MULTIBOOT_H
 #define MULTIBOOT_H
-#include "types.h"
+#include "lib/types.h"
 struct multiboot_t
 {
     uint32_t flags; // Multiboot 的版本信息

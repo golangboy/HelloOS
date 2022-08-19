@@ -1,7 +1,7 @@
 #ifndef TASK_H
 #define TASK_H
 #define __MAX_TASK_NUM 10
-#include "types.h"
+#include "lib/types.h"
 struct Task
 {
     int tid;

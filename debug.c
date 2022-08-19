@@ -1,5 +1,5 @@
 #include "debug.h"
-#include "types.h"
+#include "lib/types.h"
 #include "elf.h"
 #include "console.h"
 void print_stack_trace()

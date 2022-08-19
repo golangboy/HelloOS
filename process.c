@@ -1,5 +1,5 @@
 #include "process.h"
-#include "strings.h"
+#include "lib/strings.h"
 #include "mm.h"
 #include "debug.h"
 #include "task.h"

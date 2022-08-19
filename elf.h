@@ -1,6 +1,6 @@
 #ifndef ELF_H
 #define ELF_H
-#include "types.h"
+#include "lib/types.h"
 #include "multiboot.h"
 #define ELF32_ST_TYPE(i) ((i)&0xf)
 
