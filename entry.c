@@ -38,7 +38,9 @@ void init()
 {
     asm volatile("int $49");
     while (1)
-        ;
+    {
+        //asm volatile("int $49");
+    };
 }
 int entry(struct multiboot_t *m)
 {
@@ -50,6 +52,7 @@ int entry(struct multiboot_t *m)
     init_timer();
     init_sym(m);
     mg_info();
+    asm volatile("cli");
     start_task(taskA, (int)((int)alloc(1024) + 1023));
     // start_task(taskB, (int)((int)alloc(1024) + 1023));
     // start_task(taskC, (int)((int)alloc(1024) + 1023));
