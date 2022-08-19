@@ -1,7 +1,7 @@
 #include "idt.h"
 #include "console.h"
 #include "elf.h"
-#include "lib/syscall.h"
+#include "syscall.h"
 extern int idt_table;
 typedef struct interupt_gate
 {
