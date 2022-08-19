@@ -122,7 +122,7 @@ void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int 
     }
     else
     {
-        struct PCB *pcb = getpcbbypid(next_pid);
+        struct PCB *pcb = get_pcb_bypid(next_pid);
         uint32_t cr3 = (uint32_t)pcb->cr3;
         asm volatile("mov %0, %%cr3" ::"r"(cr3));
         switch_r3(task_list[curtask_idx].eax,
@@ -196,7 +196,7 @@ uint32_t get_curtid()
 {
     return task_list[curtask_idx].tid;
 }
-struct Task *gettask_bytid(uint32_t tid)
+struct Task *get_task_bytid(uint32_t tid)
 {
     for (int i = 0; i < __MAX_TASK_NUM; i++)
     {

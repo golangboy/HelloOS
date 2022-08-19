@@ -90,7 +90,7 @@ uint32_t find_freepid()
     return pid + 1;
 }
 // 根据pid获取pcb
-struct PCB *getpcbbypid(uint32_t pid)
+struct PCB *get_pcb_bypid(uint32_t pid)
 {
     for (int i = 0; i < __MAX_PCB_NUM; i++)
     {

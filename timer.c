@@ -30,7 +30,7 @@ int bcd2bin(int bcd)
 	return ((bcd >> 4) * 10 + (bcd & 0x0f));
 }
 //从cmos中获取当前的时间，单位秒
-int get_curtime()
+uint32_t get_curtime()
 {
 	outb(0x70, 0x00);
 	int sec = bcd2bin(inb(0x71));
