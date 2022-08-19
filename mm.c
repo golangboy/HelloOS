@@ -4,7 +4,6 @@
 #include "debug.h"
 #include "process.h"
 int mg_bkcnt = 0;
-struct MEM_MG MEM_MG;
 extern uint8_t kern_start[];
 extern uint8_t kern_end[];
 extern void reload_gdt();
@@ -106,10 +105,10 @@ void init_vm()
 }
 void merge()
 {
-    // sort by size
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    // 按照起始地址排序
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
-        for (int j = 0; j < __MAX_MEMBK_CNT - 1; j++)
+        for (int j = 0; j < __MAX_MEMBK_FREE_CNT - 1; j++)
         {
             if (MEM_MG.freemem[j].start_addr > MEM_MG.freemem[j + 1].start_addr)
             {
@@ -119,14 +118,14 @@ void merge()
             }
         }
     }
-    // merge
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    // 合并成一大块
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         if (MEM_MG.freemem[i].size == 0)
         {
             continue;
         }
-        for (int j = i + 1; j < __MAX_MEMBK_CNT; j++)
+        for (int j = i + 1; j < __MAX_MEMBK_FREE_CNT; j++)
         {
             if (MEM_MG.freemem[j].size == 0)
             {
@@ -144,11 +143,9 @@ int free(void *ptr)
 {
     uint32_t addr = (uint32_t)ptr;
     uint64_t size = 0;
-    if (0 == addr)
-    {
-        return 0;
-    }
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    ASSERT(addr > 0x100000 && addr != 0);
+    //获取到这个内存块的大小
+    for (int i = 0; i < __MAX_MEMBK_ALLOC_CNT; i++)
     {
         if (MEM_MG.allocmem[i].start_addr == addr)
         {
@@ -158,7 +155,9 @@ int free(void *ptr)
             break;
         }
     }
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    ASSERT(size != 0);
+    //合并到大块里
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         if (MEM_MG.freemem[i].start_addr == addr + size)
         {
@@ -167,7 +166,8 @@ int free(void *ptr)
             return 1;
         }
     }
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    //否则独立成一小块
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         if (MEM_MG.freemem[i].size == 0)
         {
@@ -176,25 +176,22 @@ int free(void *ptr)
             return 1;
         }
     }
-    return 0;
+    panic("No free memory block");
 }
 
 void *alloc(uint64_t size)
 {
     uint32_t pid = get_curpid();
     merge();
-    if (0 == size)
-    {
-        return 0;
-    }
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    ASSERT(size != 0);
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         if (MEM_MG.freemem[i].size >= size)
         {
             int addr = MEM_MG.freemem[i].start_addr;
             MEM_MG.freemem[i].start_addr += size;
             MEM_MG.freemem[i].size -= size;
-            for (int j = 0; j < __MAX_MEMBK_CNT; j++)
+            for (int j = 0; j < __MAX_MEMBK_ALLOC_CNT; j++)
             {
                 if (MEM_MG.allocmem[j].size == 0)
                 {
@@ -207,6 +204,7 @@ void *alloc(uint64_t size)
             return (void *)addr;
         }
     }
+    //没有足够的内存分配了
     return 0;
 }
 void *alloc_4k(uint64_t size)
@@ -219,7 +217,7 @@ void *alloc_4k(uint64_t size)
     }
     int idx = -1;
     uint32_t alloc_addr = 0;
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         if (MEM_MG.freemem[i].size >= size)
         {
@@ -242,6 +240,7 @@ void *alloc_4k(uint64_t size)
     }
     if (-1 == idx)
     {
+        //找不到合适的空间分配4k地址
         return 0;
     }
     uint32_t free_size = alloc_addr - MEM_MG.freemem[idx].start_addr;
@@ -250,7 +249,7 @@ void *alloc_4k(uint64_t size)
     MEM_MG.freemem[idx].size -= (size + free_size);
     if (free_size)
     {
-        for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+        for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
         {
             if (MEM_MG.freemem[i].size == 0)
             {
@@ -260,22 +259,22 @@ void *alloc_4k(uint64_t size)
             }
         }
     }
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_ALLOC_CNT * 5; i++)
     {
         if (MEM_MG.allocmem[i].size == 0)
         {
             MEM_MG.allocmem[i].start_addr = alloc_addr;
             MEM_MG.allocmem[i].size = size;
             MEM_MG.allocmem[i].pid = pid;
-            break;
+            return (void *)alloc_addr;
         }
     }
-    return (void *)alloc_addr;
+    panic("alloc_4k failed:no space for allocmem");
 }
 uint64_t get_freemem()
 {
     uint64_t size = 0;
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_FREE_CNT; i++)
     {
         size += MEM_MG.freemem[i].size;
     }
@@ -285,7 +284,7 @@ uint64_t get_freemem()
 uint64_t get_allocmem()
 {
     uint64_t size = 0;
-    for (int i = 0; i < __MAX_MEMBK_CNT; i++)
+    for (int i = 0; i < __MAX_MEMBK_ALLOC_CNT; i++)
     {
         size += MEM_MG.allocmem[i].size;
     }
