@@ -1,6 +1,6 @@
 #ifndef PROC_H
 #define PROC_H
 #include "types.h"
-void sleep(int s);
+void sleep(uint32_t s);
 void exitthread();
 #endif
