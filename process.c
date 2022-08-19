@@ -32,7 +32,7 @@ uint32_t getpidbytid(uint32_t tid)
 // uname 进程名 entry主线程的入口地址
 uint32_t create_pcb(char *uname, void *entry)
 {
-    uint32_t new_pid = findfreepid();
+    uint32_t new_pid = find_freepid();
     ASSERT(new_pid != -1);
     struct PDE *pde_entry = (struct PDE *)alloc_4k(1024 * 4);
     ASSERT(pde_entry != 0);
@@ -74,7 +74,7 @@ uint32_t create_pcb(char *uname, void *entry)
     panic("no space for new pcb");
 }
 // 获取一个空闲的pid
-uint32_t findfreepid()
+uint32_t find_freepid()
 {
     uint32_t pid = 0;
     for (int i = 0; i < __MAX_PCB_NUM; i++)

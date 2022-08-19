@@ -19,8 +19,8 @@ struct PCB
 struct PCB pcb_list[__MAX_PCB_NUM];
 
 uint32_t create_pcb(char *uname, void *entry);
-uint32_t getpidbytid(uint32_t tid);
-uint32_t findfreepid();
-uint32_t getcurpid();
-struct PCB *getpcbbypid(uint32_t pid);
+uint32_t get_pid_bytid(uint32_t tid);
+uint32_t find_freepid();
+uint32_t get_curpid();
+struct PCB *get_pcb_bypid(uint32_t pid);
 #endif

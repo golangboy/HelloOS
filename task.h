@@ -75,6 +75,6 @@ void sleep_kernel(int s);
 void exit_task();
 uint32_t find_tid();
 uint32_t get_curtid();
-struct Task *gettask_bytid(uint32_t tid);
+struct Task *get_task_bytid(uint32_t tid);
 extern void switch_task(int esp, int eip, int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags);
 #endif
