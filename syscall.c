@@ -46,5 +46,10 @@ int syscall(int eax, int ebx, int ecx, int edx, int edi, int esi)
         }
         return 0;
     }
+    else if (eax == __SYSCALL_PUTS)
+    {
+        console_printf("%s", ebx);
+        return 0;
+    }
     return 1;
 }

@@ -19,3 +19,11 @@ void exitthread()
     asm volatile("int $49");
     asm volatile("int $32");
 }
+void puts(char *s)
+{
+    asm volatile("mov %0, %%ebx"
+                 :
+                 : "r"(s));
+    asm volatile("mov $3, %eax");
+    asm volatile("int $49");
+}
