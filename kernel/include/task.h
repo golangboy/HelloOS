@@ -15,7 +15,6 @@ struct Task
     int ebp;
     int eip;
     int eflags;
-    int cr3;
     int valid;
     int time_ticket;
 };
