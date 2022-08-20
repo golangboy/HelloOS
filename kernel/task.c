@@ -70,7 +70,18 @@ void exit_task()
     while (1)
         ;
 }
-
+void before_schdule(int eflags, int cs, int edi, int esi, int edx, int ecx, int ebx, int eax, int ebp, int esp, int eip)
+{
+    if (eflags & (0x200))
+    {
+        //关中断
+        eflags = eflags ^ 0x200;
+    }
+    console_printf("cflags: %d cs : %d\n", eflags, cs);
+    schdule(esp + 4, ebp, edi, esi, edx, ecx, ebx, eax, eip, cs, eflags);
+    // never reach here
+    panic("never reach here");
+}
 void schdule(int esp, int ebp, int edi, int esi, int edx, int ecx, int ebx, int eax, int eip, int cs, int eflags)
 {
     if (first_task == 1)
@@ -174,8 +185,8 @@ void sleep_kernel(int s)
     task_list[curtask_idx].time_ticket = get_curtime() + s;
 
     asm volatile("sti");
-    //立刻中断调度
-    asm volatile("int $32");
+    //转移调度权
+    to_schdule();
 }
 // 获取可用的tid
 uint32_t find_tid()

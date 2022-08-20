@@ -77,4 +77,5 @@ uint32_t get_curtid();
 struct Task *get_task_bytid(uint32_t tid);
 extern void switch_r3(int eax, int ebx, int ecx, int edx, int edi, int esi, int ebp, int eip, int cs, int eflags, int esp, int ss);
 extern void switch_task(int esp, int eip, int eax, int ebx, int ecx, int edx, int esi, int edi, int ebp, int eflags);
+void to_schdule();
 #endif
